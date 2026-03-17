@@ -1,16 +1,23 @@
 import type { Metadata } from 'next'
 import './globals.css'
-import { Navigation } from '@/components/Navigation'
-import { Footer } from '@/components/Footer'
+import { Header } from '@/components/layout/Header'
+import { Footer } from '@/components/layout/Footer'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Cupped — Specialty Coffee Bean Reviews',
+    default: 'Cupped — Find Your Perfect Cup',
     template: '%s | Cupped',
   },
   description:
-    "Discover and review specialty coffee beans from the world's finest roasters. Find your next favorite cup with community-powered tasting notes.",
-  keywords: ['coffee', 'specialty coffee', 'coffee reviews', 'coffee beans', 'roasters', 'tasting notes'],
+    'Discover specialty coffee beans by flavor. Search by tasting notes, origin, roast level, and price — then buy direct from the roaster.',
+  keywords: [
+    'specialty coffee',
+    'coffee beans',
+    'coffee by flavor',
+    'coffee tasting notes',
+    'buy coffee online',
+    'coffee discovery',
+  ],
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -25,8 +32,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col bg-cream-100">
-        <Navigation />
+      <body className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-bg)', color: 'var(--color-text)' }}>
+        <Header />
         <main className="flex-1">{children}</main>
         <Footer />
       </body>
