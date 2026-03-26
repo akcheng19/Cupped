@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { MapPin, Package, Mountain, Sprout } from 'lucide-react'
 import { getBeanBySlug, getRelatedBeans } from '@/lib/supabase/beans'
+import { FALLBACK_BEANS_WITH_REVIEWS, FALLBACK_BEANS } from '@/lib/fallback-data'
 import { FlavorTag } from '@/components/ui/FlavorTag'
 import { RoastBadge } from '@/components/ui/RoastBadge'
 import { StarRating } from '@/components/ui/StarRating'
@@ -29,11 +30,17 @@ export async function generateMetadata({ params }: BeanPageProps): Promise<Metad
 }
 
 export default async function BeanPage({ params }: BeanPageProps) {
-  const bean = await getBeanBySlug(params.slug)
+  const dbBean = await getBeanBySlug(params.slug)
+  const fallback = FALLBACK_BEANS_WITH_REVIEWS.find((b) => b.slug === params.slug)
+    ?? FALLBACK_BEANS_WITH_REVIEWS[0]
+  const bean = dbBean ?? fallback
   if (!bean) notFound()
 
   const noteIds = bean.tasting_notes.map((n) => n.id)
-  const relatedBeans = await getRelatedBeans(bean.id, noteIds, bean.roaster_id, 3)
+  const dbRelated = await getRelatedBeans(bean.id, noteIds, bean.roaster_id, 3)
+  const relatedBeans = dbRelated.length > 0
+    ? dbRelated
+    : FALLBACK_BEANS.filter((b) => b.id !== bean.id && b.roaster_id !== bean.roaster_id).slice(0, 3)
 
   const processLabel: Record<string, string> = {
     washed: 'Washed',

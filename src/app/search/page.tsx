@@ -7,6 +7,7 @@ import { BeanGrid } from '@/components/sections/BeanGrid'
 import { X } from 'lucide-react'
 import Link from 'next/link'
 import type { SearchFilters, TastingNoteCategory } from '@/types'
+import { FALLBACK_BEANS, FALLBACK_NOTES_BY_CATEGORY, FALLBACK_NOTES } from '@/lib/fallback-data'
 
 export const metadata: Metadata = {
   title: 'Browse Coffee Beans',
@@ -42,12 +43,34 @@ function parseFilters(searchParams: Record<string, string | string[] | undefined
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const filters = parseFilters(searchParams)
 
-  const [beans, groupedNotes] = await Promise.all([
+  const [dbBeans, dbGroupedNotes] = await Promise.all([
     searchBeans(filters),
     getTastingNotesByCategory(),
   ])
 
+  const groupedNotes = Object.keys(dbGroupedNotes).length > 0 ? dbGroupedNotes : FALLBACK_NOTES_BY_CATEGORY
   const allNotes = Object.values(groupedNotes).flat()
+  const hasFilters = (filters.notes?.length ?? 0) + (filters.origin?.length ?? 0) + (filters.roast?.length ?? 0) + (filters.process?.length ?? 0) > 0
+
+  // Apply filters to fallback beans when DB is unavailable
+  let fallbackFiltered = FALLBACK_BEANS
+  if (filters.origin?.length) {
+    fallbackFiltered = fallbackFiltered.filter(b => filters.origin!.some(o => b.origin.toLowerCase().includes(o.toLowerCase())))
+  }
+  if (filters.roast?.length) {
+    fallbackFiltered = fallbackFiltered.filter(b => filters.roast!.includes(b.roast_level))
+  }
+  if (filters.process?.length) {
+    fallbackFiltered = fallbackFiltered.filter(b => b.process && filters.process!.includes(b.process))
+  }
+  if (filters.notes?.length) {
+    fallbackFiltered = fallbackFiltered.filter(b => {
+      const slugs = b.tasting_notes.map(n => n.slug)
+      return filters.notes!.every(s => slugs.includes(s))
+    })
+  }
+
+  const beans = dbBeans.length > 0 ? dbBeans : (hasFilters ? fallbackFiltered : FALLBACK_BEANS)
 
   // Build active filter labels for display
   const activeFilters: { label: string; removeHref: string }[] = []

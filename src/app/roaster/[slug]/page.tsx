@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin, ExternalLink } from 'lucide-react'
 import { getRoasterBySlug } from '@/lib/supabase/roasters'
+import { FALLBACK_ROASTERS_WITH_BEANS } from '@/lib/fallback-data'
 import { BeanGrid } from '@/components/sections/BeanGrid'
 import { StarRating } from '@/components/ui/StarRating'
 
@@ -22,7 +23,10 @@ export async function generateMetadata({ params }: RoasterPageProps): Promise<Me
 }
 
 export default async function RoasterPage({ params }: RoasterPageProps) {
-  const roaster = await getRoasterBySlug(params.slug)
+  const dbRoaster = await getRoasterBySlug(params.slug)
+  const fallback = FALLBACK_ROASTERS_WITH_BEANS.find((r) => r.slug === params.slug)
+    ?? FALLBACK_ROASTERS_WITH_BEANS[0]
+  const roaster = dbRoaster ?? fallback
   if (!roaster) notFound()
 
   return (
