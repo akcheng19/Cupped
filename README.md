@@ -8,6 +8,9 @@ then link straight through to the roaster to buy.
 > **Status:** Phase 1 (MVP) complete. The app runs and is fully browsable *right now* using
 > built-in fallback data — no database required. Connecting Supabase is the next step.
 > See [Connecting Supabase](#connecting-supabase).
+>
+> **Picking this up in a fresh AI session?** Paste [`HANDOFF.md`](HANDOFF.md) as your first
+> message — it orients an agent on project state, known traps, and the next task.
 
 ---
 
